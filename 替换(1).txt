@@ -1,0 +1,43 @@
+Sub CommandButton1_Click()
+Application.ScreenUpdating = False  '关闭屏幕闪
+Dim myFile$, myPath$, i%, myDoc As Object, myAPP As Object, txt$, Re_txt$
+Set myAPP = New Word.Application
+With Application.FileDialog(msoFileDialogFolderPicker) '允许用户选择一个文件夹
+    .Title = "选择目标文件夹"
+    If .Show = -1 Then
+        myPath = .SelectedItems(1) '读取选择的文件路径
+    Else
+        Exit Sub
+    End If
+End With
+myPath = myPath & ""
+myFile = Dir(myPath & "\*.doc")
+txt = InputBox("需要替换的文字：")
+Re_txt = InputBox("替换成：")
+myAPP.Visible = True '是否显示打开文档
+Do While myFile <> "" '文件不为空
+Set myDoc = myAPP.Documents.Open(myPath & "\" & myFile)
+If myDoc.ProtectionType = wdNoProtection Then '是否受保护
+    With myDoc.Content.Find
+        .Text = txt
+        .Replacement.Text = Re_txt
+        .Forward = True
+        .Wrap = 2
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchByte = True
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+        .Execute Replace:=2
+    End With
+End If
+myDoc.Save
+myDoc.Close
+myFile = Dir
+Loop
+myAPP.Quit '关掉临时进程
+Application.ScreenUpdating = True
+MsgBox ("全部替换完毕！")
+End Sub
